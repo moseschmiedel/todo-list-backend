@@ -1,0 +1,37 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://localhost/todo.schema.json",
+    "title": "Todo",
+    "description": "A Todo in a Project",
+    "type": "object",
+    "properties": {
+	"title": {
+	    "description": "Title of Todo",
+	    "type": "string"
+	},
+	"desc": {
+	    "description": "Short description for Todo",
+	    "type": "string"
+	},
+	"tags": {
+	    "description": "Tags associated with this Todo",
+	    "type": "array",
+	    "items": {
+		"type": "integer",
+		"minimum": 0
+	    },
+	    "uniqueItems": true
+	},
+	"projects": {
+	    "description": "Projects the Todo belongs to",
+	    "type": "array",
+	    "items": {
+		"type": "integer",
+		"minimum": 0
+	    },
+	    "uniqueItems": true
+	}
+    },
+    "required": [ "title", "desc" ],
+    "additionalProperties": false
+}

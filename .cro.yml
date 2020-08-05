@@ -1,0 +1,15 @@
+---
+cro: 1
+id: todo-list
+links:  []
+endpoints: 
+  - 
+    id: http
+    port-env: TODO_LIST_PORT
+    protocol: http
+    name: HTTP
+    host-env: TODO_LIST_HOST
+env:  []
+name: todo-list
+entrypoint: service.p6
+...
