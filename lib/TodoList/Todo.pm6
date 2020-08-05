@@ -20,14 +20,31 @@ sub todo-routes() is export {
     route {
 	# Read todo
 	get -> UInt $id {
-	    my %todo = $pg.query('select * from todos where id = $1', $id).hash;
-	    if (%todo.defined) {
+	    my $db = $pg.db;
+	    $db.begin;
+
+	    my $todo = $pg.query('select * from todos where id = $1', $id);
+	    my $tags = $pg.query('select * from todo_tag where todo_id=$1', $id);
+
+	    $db.commit;
+	    $db.finish;
+
+	    if ($todo.defined) {
+		my %todo = $todo.hash;
+
+		my @tags = [];
+		for $tags.hashes -> $tag {
+		    @tags.append($tag<tag_id>);
+		}
+
+		%todo<tags> = @tags;
+
 		content 'application/json',
 		{ 'message' => "Read todo $id",
 		  'result' => %todo };
 	    } else {
 		not-found 'application/json',
-		{ 'message' => "Could not find todo with id $id",
+		{ 'message' => "Todo with id $id not found",
 		  'id' => $id };
 	    }
 	}
@@ -107,12 +124,14 @@ sub todo-routes() is export {
 	    $db.begin;
 
 	    $pg.query('delete from todos where id=$1', $id);
+	    $pg.query('delete from todo_tag where todo_id=$1', $id);
 
 	    $db.commit;
 	    $db.finish;
 
 	    content 'application/json',
-	    { 'message' => "Delete todo $id." };
+	    { 'message' => "Delete todo $id.",
+	      'id' => $id };
 	}
 
 	# Read all todos
@@ -128,6 +147,21 @@ sub todo-routes() is export {
 	    my @todos = [];
 
 	    for $todos.hashes -> $todo {
+		my $db = $pg.db;
+		$db.begin;
+
+		my $tags = $pg.query('select * from todo_tag where todo_id=$1', $todo<id>);
+
+		$db.commit;
+		$db.finish;
+
+		my @tags = [];
+		for $tags.hashes -> $tag {
+		    @tags.append($tag<tag_id>);
+		}
+
+		$todo<tags> = @tags;
+
 		@todos.append($todo);
 	    }
 
