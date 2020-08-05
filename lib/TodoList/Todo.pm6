@@ -64,7 +64,7 @@ sub todo-routes() is export {
 		    $pg.query('insert into todos (id,title,description) values ($1,$2,$3)', $id, %todo<title>, %todo<desc>);
 
 		    if %todo<tags> {
-			for %todo<tags> -> $tag_id {
+			for @(%todo<tags>) -> $tag_id {
 			    $pg.query('insert into todo_tag (todo_id,tag_id)
 					      values ($1,$2)', $id, $tag_id);
 			}
@@ -96,7 +96,7 @@ sub todo-routes() is export {
 		    $pg.query('delete from todo_tag where todo_id=$1', $id);
 
 		    if %todo<tags> {
-			for %todo<tags> -> $tag_id {
+			for @(%todo<tags>) -> $tag_id {
 			    $pg.query('insert into todo_tag (todo_id,tag_id)
 					      values ($1,$2)', $id, $tag_id);
 			}
