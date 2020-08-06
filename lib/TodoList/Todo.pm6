@@ -23,18 +23,21 @@ sub todo-routes() is export {
 	    my $db = $pg.db;
 	    $db.begin;
 
-	    my $todo = $pg.query('select * from todos where id = $1', $id);
-	    my $tags = $pg.query('select * from todo_tag where todo_id=$1', $id);
+	    my $todo = $pg.query('select * from todos where id = $1', $id) || Nil;
+	    my $tags = $pg.query('select * from todo_tag where todo_id=$1', $id) || Nil;
 
 	    $db.commit;
 	    $db.finish;
 
-	    if ($todo.defined) {
+	    if ($todo.rows > 0) {
 		my %todo = $todo.hash;
 
 		my @tags = [];
-		for $tags.hashes -> $tag {
-		    @tags.append($tag<tag_id>);
+
+		if ($tags.rows > 0) {
+		    for $tags.hashes -> $tag {
+			@tags.append($tag<tag_id>);
+		    }
 		}
 
 		%todo<tags> = @tags;
@@ -123,8 +126,8 @@ sub todo-routes() is export {
 	    my $db = $pg.db;
 	    $db.begin;
 
-	    $pg.query('delete from todos where id=$1', $id);
 	    $pg.query('delete from todo_tag where todo_id=$1', $id);
+	    $pg.query('delete from todos where id=$1', $id);
 
 	    $db.commit;
 	    $db.finish;

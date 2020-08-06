@@ -29,12 +29,15 @@ sub tag-routes() is export {
 	    $db.commit;
 	    $db.finish;
 
-	    if ($tag.defined) {
+	    if ($tag.rows > 0) {
 		my %tag = $tag.hash;
 
 		my @todos = [];
-		for $todos.hashes -> $todo {
-		    @todos.append($todo<todo_id>);
+
+		if ($todos.rows > 0) {
+		    for $todos.hashes -> $todo {
+			@todos.append($todo<todo_id>);
+		    }
 		}
 
 		%tag<todos> = @todos;
@@ -122,8 +125,8 @@ sub tag-routes() is export {
 	    my $db = $pg.db;
 	    $db.begin;
 
-	    $pg.query('delete from tags where id=$1', $id);
 	    $pg.query('delete from todo_tag where tag_id=$1', $id);
+	    $pg.query('delete from tags where id=$1', $id);
 
 	    $db.commit;
 	    $db.finish;
